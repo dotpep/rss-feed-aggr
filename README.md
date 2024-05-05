@@ -16,12 +16,14 @@ Backend REST API server in golang, that allows aggregate data from RSS feeds and
 - Create database in PostgreSQL using PgAdmin or CLI.
 - Change `DB_URL` in `.env` file with these structure: DB_URL=`postgres://username:password@localhost:5432/db_name`
 - Install two CLI tools that allow working with ORM and Migrations
-    - `go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest` (ORM) check with `sqlc version`
+    - (additional) `go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest` (ORM) check with `sqlc version`
     - `go install github.com/pressly/goose/v3/cmd/goose@latest` (DB Migrations) check with `goose --version`
 - To apply goose migrations:
     - `cd sql/schema`
     - up: `goose postgres postgres://username:password@localhost:5432/db_name up`
     - down: `goose postgres postgres://username:password@localhost:5432/db_name down`
+- (additional) sqlc Generator ORM (SQL query in `sql/queries/` to Golang code to `internal/database`):
+    - `sqlc generate`
 - 
 
 ### Routers/Endpoints
