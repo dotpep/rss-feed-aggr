@@ -35,5 +35,5 @@ func (apiDBCfg *apiDBConfig) handlerCreateUser(resWriter http.ResponseWriter, re
 		))
 	}
 
-	respondWithJSON(resWriter, 200, user)
+	respondWithJSON(resWriter, 200, databaseUserToUser(user))
 }
