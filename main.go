@@ -1,14 +1,22 @@
 package main
 
 import (
+	"database/sql"
 	"log"
 	"net/http"
 	"os"
 
+	"github.com/dotpep/rss-feed-aggr/internal/database"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
+
+	_ "github.com/lib/pq"
 )
+
+type apiDBConfig struct {
+	DB *database.Queries
+}
 
 func main() {
 	// Environment Variable
@@ -17,6 +25,21 @@ func main() {
 	portString := os.Getenv("PORT")
 	if portString == "" {
 		log.Fatal("PORT is not found in the environment")
+	}
+
+	dbURL := os.Getenv("DB_URL")
+	if dbURL == "" {
+		log.Fatal("DB_URL is not found in the environment")
+	}
+
+	// Database
+	conn, err := sql.Open("postgres", dbURL)
+	if err != nil {
+		log.Fatal("Can't connect to database:", err)
+	}
+
+	apiDBCfg := apiDBConfig{
+		DB: database.New(conn),
 	}
 
 	// Routers (Endpoints)
@@ -38,6 +61,8 @@ func main() {
 	v1Router.Get("/healthz", handlerReadiness)
 	v1Router.Get("/err", handlerError)
 
+	v1Router.Post("/users", apiDBCfg.handlerCreateUser)
+
 	router.Mount("/v1", v1Router)
 
 	// Http Server (JSON REST API)
@@ -47,7 +72,8 @@ func main() {
 	}
 
 	log.Printf("Server starting on port %v", portString)
-	err := srv.ListenAndServe()
+
+	err = srv.ListenAndServe()
 	if err != nil {
 		log.Fatal(err)
 	}
