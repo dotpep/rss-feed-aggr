@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/dotpep/rss-feed-aggr/internal/auth"
 	"github.com/dotpep/rss-feed-aggr/internal/database"
 	"github.com/google/uuid"
 )
@@ -40,18 +39,10 @@ func (apiDBCfg *apiDBConfig) handlerCreateUser(resWriter http.ResponseWriter, re
 	respondWithJSON(resWriter, 201, databaseUserToUser(user))
 }
 
-func (apiDBCfg *apiDBConfig) handlerGetUserByAPIKey(resWriter http.ResponseWriter, req *http.Request) {
-	apiKey, err := auth.GetAPIKey(req.Header)
-	if err != nil {
-		respondWithError(resWriter, 403, fmt.Sprintf("Auth error: %v", err))
-		return
-	}
-
-	user, err := apiDBCfg.DB.GetUserByAPIKey(req.Context(), apiKey)
-	if err != nil {
-		respondWithError(resWriter, 400, fmt.Sprintf("Couldn't get user: %v", err))
-		return
-	}
-
-	respondWithJSON(resWriter, 200, databaseUserToUser(user))
+func (apiDBCfg *apiDBConfig) handlerGetUserByAPIKey(
+	w http.ResponseWriter,
+	r *http.Request,
+	user database.User,
+) {
+	respondWithJSON(w, 200, databaseUserToUser(user))
 }

@@ -62,7 +62,7 @@ func main() {
 	v1Router.Get("/err", handlerError)
 
 	v1Router.Post("/users", apiDBCfg.handlerCreateUser)
-	v1Router.Get("/users", apiDBCfg.handlerGetUserByAPIKey)
+	v1Router.Get("/users", apiDBCfg.middlewareAuth(apiDBCfg.handlerGetUserByAPIKey))
 
 	router.Mount("/v1", v1Router)
 
