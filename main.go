@@ -64,6 +64,8 @@ func main() {
 	v1Router.Post("/users", apiDBCfg.handlerCreateUser)
 	v1Router.Get("/users", apiDBCfg.middlewareAuth(apiDBCfg.handlerGetUserByAPIKey))
 
+	v1Router.Post("/feeds", apiDBCfg.middlewareAuth(apiDBCfg.handlerCreateFeed))
+
 	router.Mount("/v1", v1Router)
 
 	// Http Server (JSON REST API)
