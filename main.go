@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/dotpep/rss-feed-aggr/internal/database"
 	"github.com/go-chi/chi"
@@ -19,6 +20,12 @@ type apiDBConfig struct {
 }
 
 func main() {
+	//feed, err := urlToFeed("https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml")
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	//fmt.Println(feed)
+
 	// Environment Variable
 	godotenv.Load(".env")
 
@@ -38,9 +45,15 @@ func main() {
 		log.Fatal("Can't connect to database:", err)
 	}
 
+	dbConn := database.New(conn)
 	apiDBCfg := apiDBConfig{
-		DB: database.New(conn),
+		DB: dbConn,
 	}
+
+	// Scraping RSS Feeds goroutine
+	go startScraping(
+		dbConn, 10, time.Minute,
+	)
 
 	// Routers (Endpoints)
 	router := chi.NewRouter()
