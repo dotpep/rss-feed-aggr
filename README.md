@@ -46,5 +46,7 @@ Backend REST API server in golang, that allows aggregate data from RSS feeds and
 ## TODO
 
 - [ ] Add Docker, makefile
-- [x] Connect PostgreSQL database, and ORM/Migrations future
-- [ ] Authentication w/ API keys
+- [ ] OpenAPI, Swagger API docs
+- [x] Connect PostgreSQL database, and ORM(generating go code sqlc)/Migrations (goose) future with raw SQL query
+- [x] Authentication w/ API keys
+- [x] Aggregation scraper/worker

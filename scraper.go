@@ -2,11 +2,14 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"log"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/dotpep/rss-feed-aggr/internal/database"
+	"github.com/google/uuid"
 )
 
 func startScraping(
@@ -60,7 +63,40 @@ func scrapeFeed(
 	}
 
 	for _, item := range rssFeed.Channel.Item {
-		log.Println("Fount post", item.Title, "on feed", feed.Name)
+		//log.Println("Fount post", item.Title, "on feed", feed.Name)
+
+		description := sql.NullString{}
+		if item.Description != "" {
+			description.String = item.Description
+			description.Valid = true
+		}
+
+		// TODO: parse other time publishedAt formats as well
+		formattedPubAt, err := time.Parse(time.RFC1123Z, item.PubDate)
+		if err != nil {
+			log.Printf(
+				"couldn't parse date %v of %v post with error %v",
+				item.PubDate, item.Title, err,
+			)
+			continue
+		}
+
+		_, err = db.CreatePost(context.Background(), database.CreatePostParams{
+			ID:          uuid.New(),
+			CreatedAt:   time.Now().UTC(),
+			UpdatedAt:   time.Now().UTC(),
+			Title:       item.Title,
+			Description: description,
+			PublishedAt: formattedPubAt,
+			Url:         item.Link,
+			FeedID:      feed.ID,
+		})
+		if err != nil {
+			if strings.Contains(err.Error(), "duplicate key") {
+				continue
+			}
+			log.Println("failed to create post: ", err)
+		}
 	}
 	log.Printf("Feed %s collected, %v posts found", feed.Name, len(rssFeed.Channel.Item))
 }
