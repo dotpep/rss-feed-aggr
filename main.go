@@ -84,6 +84,8 @@ func main() {
 	v1Router.Get("/feed_follows", apiDBCfg.middlewareAuth(apiDBCfg.handlerGetFeedFollowList))
 	v1Router.Delete("/feed_follows/{feedFollowID}", apiDBCfg.middlewareAuth(apiDBCfg.handlerDeleteFeedFollow))
 
+	v1Router.Get("/posts", apiDBCfg.middlewareAuth(apiDBCfg.handlerGetPostListForUser))
+
 	router.Mount("/v1", v1Router)
 
 	// Http Server (JSON REST API)
