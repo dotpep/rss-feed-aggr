@@ -71,8 +71,7 @@ func scrapeFeed(
 			description.Valid = true
 		}
 
-		// TODO: parse other time publishedAt formats as well
-		formattedPubAt, err := time.Parse(time.RFC1123Z, item.PubDate)
+		formattedPubAt, err := parsePubDate(item.PubDate)
 		if err != nil {
 			log.Printf(
 				"couldn't parse date %v of %v post with error %v",
@@ -99,4 +98,25 @@ func scrapeFeed(
 		}
 	}
 	log.Printf("Feed %s collected, %v posts found", feed.Name, len(rssFeed.Channel.Item))
+}
+
+var (
+	formatTimeLayouts = []string{
+		time.RFC1123Z, // "Mon, 29 Aug 2022 00:00:00 +0000"
+		time.RFC1123,  // "Sat, 01 Jun 2024 14:24:27 GMT"
+		// TODO: add other formats as you need in feed aggr
+	}
+)
+
+func parsePubDate(pubDate string) (time.Time, error) {
+	var parsedTime time.Time
+	var err error
+
+	for _, layout := range formatTimeLayouts {
+		parsedTime, err = time.Parse(layout, pubDate)
+		if err == nil {
+			return parsedTime, nil
+		}
+	}
+	return time.Time{}, err
 }
